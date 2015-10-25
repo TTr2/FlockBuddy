@@ -129,7 +129,8 @@ class Clockwork {
       $this->key = $key;
     }
         
-    $this->ssl                  = (array_key_exists('ssl', $options)) ? $options['ssl'] : null;
+//    $this->ssl                  = (array_key_exists('ssl', $options)) ? $options['ssl'] : null;
+    $this->ssl                  = false;
     $this->proxy_host           = (array_key_exists('proxy_host', $options)) ? $options['proxy_host'] : null;
     $this->proxy_port           = (array_key_exists('proxy_port', $options)) ? $options['proxy_port'] : null;
     $this->from                 = (array_key_exists('from', $options)) ? $options['from'] : null;
