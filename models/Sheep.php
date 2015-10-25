@@ -112,14 +112,5 @@ class Sheep {
         $this->isShepherd = $isShepherd;
     }
 
-        
-    
-/* FOR DATABASE RETRIEVAL?
-  public function __construct($row_from_database){
-       $this->id = $row_from_database->id;
-       $this->name = $row_from_database->name;
-       // etc.
-   }
- */    
     
 }
