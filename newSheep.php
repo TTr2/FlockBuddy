@@ -10,10 +10,10 @@ if (isset($_POST)){
 
     $sheepTable = new SheepTable(); 
     
-    $flockID = $_POST[flockID];
-    $sheepID = $flockID . $_POST[mobile]; // Composite Key
+    $flockID = $_POST['flockID'];
+    $sheepID = $flockID . $_POST['mobile']; // Composite Key
     
-    $sheep = new Sheep ( $sheepID, $_POST[sheepMob], $flockID, $_POST[sheepName],
+    $sheep = new Sheep ( $sheepID, $_POST['mobile'], $flockID, $_POST['sheepName'],
             NULL, // Longtitude
             NULL, // Latitude
             false, // By default
@@ -22,8 +22,10 @@ if (isset($_POST)){
     
     if ($sheepTable->addSheep($sheep)){
         http_response_code(200);
+        echo "Success";
     }
     else{
         http_response_code(400);        
+        echo " FAIL";        
     }
 }

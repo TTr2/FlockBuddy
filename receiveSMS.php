@@ -17,8 +17,8 @@ if (isset($_POST)){
     $sheepTable = new $sheepTable();
     $flockTable = new $flockTable();
     
-    $sheepMobile = $_POST[from];
-    $messageFromSheep = $_POST[content];
+    $sheepMobile = $_POST['from'];
+    $messageFromSheep = $_POST['content'];
 
     $sheep = $sheepTable->getSheepUsingSheepMobile($sheepMobile);
     $flock = $flockTable->getFlockUsingFlockID($sheep->getFlockID());

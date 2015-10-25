@@ -23,14 +23,14 @@ if (isset($_POST)){
     // Locate flock and sheep.    
 //    $flockID = $_POST[flockID];
 
-    $sheep = $sheepTable->getSheepUsingSheepMobile($_POST[mobile]);
+    $sheep = $sheepTable->getSheepUsingSheepMobile($_POST['mobile']);
     $flock = $flockTable->getFlockUsingFlockID($sheep->getFlockID());    
 
     $oldX = $sheep->getSheepLongtitude();        
     $oldY= $sheep->getSheepLatitude();
     
-    $newX = $_POST[longtitude];
-    $newY = $_POST[latitude];
+    $newX = $_POST['longtitude'];
+    $newY = $_POST['latitude'];
     
     $sheepTable->updateSheepCoordinates($sheepID,$newX,$newY);
     
