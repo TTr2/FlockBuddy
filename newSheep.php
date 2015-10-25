@@ -8,39 +8,22 @@ require_once 'autoload.php';
 
 if (isset($_POST)){
 
-    // FLOCK + MOBILE
-    $nextSheepID = "123"; // TALK TO DB AND GET AUTOINCREMENT FOR SHEEP ID
+    $sheepTable = new SheepTable(); 
     
-    $sheep = new Sheep ( $nextSheepID, $_POST[sheepMob], $_POST[flockID], $_POST[sheepName],
+    $flockID = $_POST[flockID];
+    $sheepID = $flockID . $_POST[mobile]; // Composite Key
+    
+    $sheep = new Sheep ( $sheepID, $_POST[sheepMob], $flockID, $_POST[sheepName],
             NULL, // Longtitude
             NULL, // Latitude
             false, // By default
             false, // By Default
             false); // Not a Shepherd
-
-    //
-    // Check for mobile in active flocks before adding.
-    //
-        
-    $flock = new Flock( $flockID, 
-                        $_POST[flockName], 
-                        $shepherd->getSheepID(),
-                        $_POST[start],
-                        $_POST[end], 
-                        $_POST[maxDistance]);
     
-    //
-    // DATABASE TABLE METHOD TO ADD SHEEP
-    //
-
-    //
-    // RETURN INFO TO ANDROID VIA HTTP?
-    //
-    
-
-    
-    
-
-    
-    
+    if ($sheepTable->addSheep($sheep)){
+        http_response_code(200);
+    }
+    else{
+        http_response_code(400);        
+    }
 }

@@ -15,31 +15,24 @@ require_once 'autoload.php';
 
 if (isset($_POST)){
     
-    // Locate flock and sheep.
+    $flockTable = new FlockTable();
+    $sheepTable = new SheepTable();
     
-    $flockID = $_POST[flockID];
-//    
-//    findFlock searches DB for flockID and returns an instantiated Flock object on its data. 
-//    Needs reference e.g. FlockTable.php
-    $flock = findFlock($flockID);
-    if ($flock !== null){
-        
-    }
+    
+    
+    // Locate flock and sheep.    
+//    $flockID = $_POST[flockID];
 
-    $sheepID = $_POST[sheepID] . $_POST[mobile];
-//    
-//    findSheep searches DB for sheepID and returns an instantiated Sheep object on its data. 
-//    Needs reference e.g. SheepTable.php
-    $sheep = findSheep($sheepID);
+    $sheep = $sheepTable->getSheepUsingSheepMobile($_POST[mobile]);
+    $flock = $flockTable->getFlockUsingFlockID($sheep->getFlockID());    
 
     $oldX = $sheep->getSheepLongtitude();        
     $oldY= $sheep->getSheepLatitude();
     
     $newX = $_POST[longtitude];
     $newY = $_POST[latitude];
-    //
-    // UPDATE DB WITH NEW COORDS
-    // $sheepTable->updateCoords(Sheep, longtitude, latitude);
+    
+    $sheepTable->updateSheepCoordinates($sheepID,$newX,$newY);
     
     $shepherdX = $flock->getShepherd()->getSheepLongtitude();    
     $shepherdY = $flock->getShepherd()->getSheepLatitude();
