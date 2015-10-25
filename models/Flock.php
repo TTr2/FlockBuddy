@@ -39,8 +39,8 @@ class Flock {
         return $this->flockName;
     }
 
-    public function getFlockSheperd() {
-        return $this->flockSheperd;
+    public function getFlockShepherdID() {
+        return $this->flockShepherdID;
     }
 
     public function getFlockStart() {
@@ -63,8 +63,8 @@ class Flock {
         $this->flockName = $flockName;
     }
 
-    public function setFlockSheperd($flockSheperd) {
-        $this->flockSheperd = $flockSheperd;
+    public function setFlockShepherdID($flockSheperd) {
+        $this->flockShepherdID = $flockSheperd;
     }
 
     public function setFlockStart($flockStart) {

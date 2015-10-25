@@ -8,39 +8,38 @@ require_once 'autoload.php';
 
 if (isset($_POST)){
 
-    // FLOCK + MOBILE
-    $nextSheepID = "123"; // TALK TO DB AND GET AUTOINCREMENT FOR SHEEP ID
+    $sheepTable = new SheepTable(); 
+    $flockTable = new FlockTable(); 
     
-    $sheep = new Sheep ( $nextSheepID, $_POST[sheepMob], $_POST[flockID], $_POST[sheepName],
+    $flockID = $_POST['flockID'];
+    $flock = $flockTable->getFlockUsingFlockID($flockID);
+    
+    $sheepID = $flockID . $_POST['mobile']; // Composite Key
+    
+    $sheep = new Sheep ( $sheepID, $_POST['mobile'], $flockID, $_POST['sheepName'],
             NULL, // Longtitude
             NULL, // Latitude
             false, // By default
             false, // By Default
             false); // Not a Shepherd
+    
+    if ($sheepTable->addSheep($sheep)){
+        http_response_code(200);
+        echo "Success";
 
-    //
-    // Check for mobile in active flocks before adding.
-    //
-        
-    $flock = new Flock( $flockID, 
-                        $_POST[flockName], 
-                        $shepherd->getSheepID(),
-                        $_POST[start],
-                        $_POST[end], 
-                        $_POST[maxDistance]);
-    
-    //
-    // DATABASE TABLE METHOD TO ADD SHEEP
-    //
+        $messageForSheep = "You have been added to the " 
+                . $flock->getFlockName() 
+                . " Flock, reply \"OK\" to this message to enable tracking.";
+        $sheepMobile = $_POST['mobile'];
 
-    //
-    // RETURN INFO TO ANDROID VIA HTTP?
-    //
-    
-
-    
-    
-
-    
-    
+        try{
+           $sendMessage = new Message($sheepMobile, $messageForSheep);            
+        } catch (ClockworkException $e) {
+            echo 'Exception sending SMS: ' . $e->getMessage();
+        }
+    }
+    else{
+        http_response_code(400);        
+        echo " FAIL";        
+    }
 }

@@ -9,11 +9,14 @@ require_once 'autoload.php';
 
 
 if (isset($_POST)){
-
-    $flockID = "123"; // TALK TO DB AND GET AUTOINCREMENT FOR FLOCK ID
-    $shepherdID = "123"; // TALK TO DB AND GET AUTOINCREMENT FOR SHEEP ID
     
-    $shepherd = new Sheep ( $shepherdID, $_POST[shepardMob], $flockID, $_POST[sheepName],
+    $flockTable = new FlockTable();
+    
+    $flockID = $flockTable->getNextFlockID(); // TALK TO DB AND GET AUTOINCREMENT FOR FLOCK ID
+//    $flockID = 0;
+    $shepherdID = $flockID . $_POST['mobile'];
+    
+    $shepherd = new Sheep ( $shepherdID, $_POST['mobile'], $flockID, $_POST['sheepName'],
             NULL, // Longtitude
             NULL, // Latitude
             true, // Accepted by default
@@ -22,25 +25,17 @@ if (isset($_POST)){
 
 
     $flock = new Flock( $flockID, 
-                        $_POST[flockName], 
+                        $_POST['flockName'], 
                         $shepherd->getSheepID(),
-                        $_POST[start],
-                        $_POST[end], 
-                        $_POST[maxDistance]);
+                        $_POST['start'],
+                        $_POST['end'], 
+                        $_POST['maxDistance']);
     
-    //
-    // DATABASE TABLE METHOD TO ADD FLOCK
-    //
-
-    //
-    // RETURN INFO TO ANDROID VIA HTTP
-    // Return $flockID
-    //
-    
-
-    
-    
-
-    
+    if ($flockTable->addFlock($flock)){
+        http_response_code(200);
+    }
+    else{
+        http_response_code(400);        
+    }
     
 }
