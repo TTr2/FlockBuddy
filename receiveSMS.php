@@ -14,8 +14,8 @@ require_once 'autoload.php';
 
 if (isset($_POST)){
     
-    $sheepTable = new $sheepTable();
-    $flockTable = new $flockTable();
+    $sheepTable = new SheepTable();
+    $flockTable = new FlockTable();
     
     $sheepMobile = $_POST['from'];
     $messageFromSheep = $_POST['content'];
@@ -25,7 +25,7 @@ if (isset($_POST)){
     
     switch ($messageFromSheep){
         case "OK":
-            $sheepTable->confirmSheepAceeptance($sheep->getSheepID());
+            $sheepTable->confirmSheepAcceptance($sheep->getSheepID());
 // 
 // Set App play package name address.
 // http://developer.android.com/distribute/tools/promote/linking.html#OpeningDetails

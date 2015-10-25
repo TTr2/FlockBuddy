@@ -21,8 +21,6 @@ if (isset($_POST)){
     
     
     // Locate flock and sheep.    
-//    $flockID = $_POST[flockID];
-
     $sheep = $sheepTable->getSheepUsingSheepMobile($_POST['mobile']);
     $flock = $flockTable->getFlockUsingFlockID($sheep->getFlockID());    
 
@@ -42,6 +40,7 @@ if (isset($_POST)){
             pow($shepherdX - $newX,2) + pow($shepherdY - $newY,2) ); 
     
     if ($distanceFromShepherd > $flockMaxRadius){
+        
         // SEND MESSAGE.
 
         //
