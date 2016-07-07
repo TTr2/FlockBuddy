@@ -1,113 +1,239 @@
 <?php
 require_once 'autoload.php';
 
-function addSheep($sheep) {
-    $query = mysql_query("
-    INSERT INTO 'flockbuddy'.'sheep' ('sheepID', 'sheepName', 
-    'sheepLongitude', 'sheepLatitude', 'accepted', 'tracking', 'isShepherd') 
-    VALUES ('$sheep->getSheepID', '$sheep->getSheepName',
-    '$sheep->getSheepLongitude', '$sheep->getSheepLatitude', 
-    '$sheep->getAccepted', '$sheep->getTracking', 
-    '$sheep->getIsShepherd');");
+class SheepTable extends TableAbstract{
+    
+    function addSheep($sheep) {
 
-    if (!$query) {
-            echo 'Could not run query: ' . mysql_error();
-            exit;
+        $sql = "INSERT INTO sheep (sheepID, flockID, sheepMobile, sheepName, sheepLongitude, sheepLatitude, accepted, tracking, isShepherd )
+                VALUES (:sheepID, :flockID, :sheepMobile, :sheepName, :sheepLongitude, :sheepLatitude, :accepted, :tracking, :isShepherd)";
+        $params = array(
+            ':sheepID' => $sheep->getSheepID(),
+            ':flockID' => $sheep->getFlockID(),
+            ':sheepMobile' => $sheep->getSheepMobile(),
+            ':sheepName' => $sheep->getSheepName(),
+            ':sheepLongitude' => $sheep->getSheepLongtitude(),
+            ':sheepLatitude' => $sheep->getSheepLatitude(),
+            ':accepted' => $sheep->getAccepted(),
+            ':tracking' => $sheep->getTracking(),
+            ':isShepherd' => $sheep->getIsShepherd()
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        if ($result->errorCode() == 0) {
+            return TRUE;             
+        }
+        return FALSE;    
     }
-    echo "Sheep flocked successfully";
-}
-	
-function getSheepUsingSheepID($sheepID) {
-
-    $query = mysql_query("SELECT * FROM sheep WHERE sheepID == $sheepID);");
-
-    if (!$query) {
-            echo 'Could not run query: ' . mysql_error();
-            exit;
+    
+    function getSheepUsingSheepID($sheepID) {    
+        $sql = "SELECT * FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+        $values = $result->fetch(PDO::FETCH_BOTH);
+        if ($result->errorCode()==0) {   
+            $sheep = new Sheep (
+                $values[0], // sheepID
+                $values[1], // sheepMobile
+                $values[2], // sheepName
+                $values[3], // sheepLongtitude
+                $values[4], // sheepLatitude
+                $values[5], // accepted
+                $values[6], // tracking
+                $values[7], // isShepherd
+                $values[8] // flockID
+            );
+            return $sheep;         
+        }
+        return NULL;
     }
-    $row = mysql_fetch_row($query); // turn row into array
+   
 
-    $sheep = new Sheep ( 
-        $row[0], // sheepID
-        $row[1], // sheepMobile
-        $row[2], // sheepName
-        $row[3], // sheepLongtitude
-        $row[4], // sheepLatitude
-        $row[5], // accepted
-        $row[6], // tracking
-        $row[7], // isShepherd
-        $row[8]); // flockID 
+   
+    function getSheepUsingSheepMobile($sheepMobile) {
+        $sql = "SELECT * FROM sheep WHERE sheepMobile = :sheepMobile ORDER BY flockID DESC LIMIT 1";
+        $params = array(
+            ':sheepMobile' => $sheepMobile
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+        $values = $result->fetch(PDO::FETCH_BOTH);
 
-    return $sheep; 
-}
-
-function getSheepUsingSheepMobile($sheepMobile) {
-
-    $query = mysql_query("SELECT * FROM sheep WHERE sheepMobile == $sheepMobile);");
-
-    if (!$query) {
-        echo 'Could not run query: ' . mysql_error();
-        exit;
+        if ($result->errorCode()==0) {
+            $sheep = new Sheep (
+                $values[0], // sheepID
+                $values[1], // sheepMobile
+                $values[2], // sheepName
+                $values[3], // sheepLongtitude
+                $values[4], // sheepLatitude
+                $values[5], // accepted
+                $values[6], // tracking
+                $values[7], // isShepherd
+                $values[8] // flockID
+            );
+            return $sheep;
+        }
+        return NULL;
     }
-    $row = mysql_fetch_row($query); // turn row into array
 
-    $sheep = new Sheep ( 
-        $row[0], // sheepID
-        $row[1], // sheepMobile
-        $row[2], // sheepName
-        $row[3], // sheepLongtitude
-        $row[4], // sheepLatitude
-        $row[5], // accepted
-        $row[6], // tracking
-        $row[7], // isShepherd
-        $row[8]); // flockID 
+    function deleteSheepFromTable($sheepID) {
+        $sql = "DELETE FROM sheep WHERE 'sheepID' = :sheepID";
 
-    return $sheep; 
-}
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
 
-function deleteSheepFromTable($sheepID) {
-
-    $query = mysql_query("DELETE FROM sheep WHERE 'sheepID' == $sheepID);");
-
-    if (!$query) {
-        echo 'Could not run query: ' . mysql_error();
-        exit;
+        if ($result->errorCode()==0) {
+            return TRUE;             
+        }
+        return FALSE; 
     }
-    echo "Sheep deleted successfully"; 
+
+    function updateSheepCoordinates($sheepID, $sheepLongitude, $sheepLatitude) {
+        $sql = "UPDATE sheep SET sheepLongitude = :sheepLongitude,
+            sheepLatitude = :sheepLatitude WHERE sheepID = :sheepID"; 
+        $params = array(
+            ':sheepID' => $sheepID,
+            ':sheepLongitude' => $sheepLongitude,
+            ':sheepLatitude' => $sheepLatitude,
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        if ($result->errorCode()==0) {
+            return TRUE;             
+        }
+        return FALSE; 
+    }
+
+    function checkSheepAcceptance($sheepID) {
+        $sql = "SELECT accepted FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+        $values = $result->fetch(PDO::FETCH_BOTH);
+
+        if ($values[0] == 1) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    function confirmSheepAcceptance($sheepID) {
+        $sql = "UPDATE sheep SET accepted = 1,
+            tracking = 1 WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        if ($result->errorCode()==0) {
+            return TRUE;             
+        }
+        return FALSE; 
+    }
+    
+    function toggleSheepTracking($sheepID, $tracking) {
+        
+        $sql = "UPDATE sheep SET tracking = :tracking WHERE sheepID = :sheepID"; 
+        $params = array(
+            ':sheepID' => $sheepID,
+            ':tracking' => $tracking
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        if ($result->errorCode()==0) {
+            return TRUE;             
+        }
+        return FALSE; 
+    }
+    
+    
+    function getSheepLongitude($sheepID) {
+
+        $sql = "SELECT sheepLongitude FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        return $result;
+    }
+
+    function getSheepLatitude($sheepID) {
+
+        $sql = "SELECT sheepLatitude FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        return $result;
+    }
+
+    function getSheepName($sheepID) {
+
+        $sql = "SELECT sheepName FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        return $result;
+    }
+    
+    function getSheepMobile($sheepID) {
+
+        $sql = "SELECT sheepMobile FROM sheep WHERE sheepID = :sheepID";
+        $params = array(
+            ':sheepID' => $sheepID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+
+        return $result;
+    }
+
+
+    function getAllSheepFromFlockID($flockID){
+        $sql = "SELECT * FROM sheep WHERE flockID = :flockID";
+        $params = array(
+            ':flockID' => $flockID
+        );
+        $result = $this->dbh->prepare($sql);
+        $result->execute($params);
+        $values = $result->fetch(PDO::FETCH_BOTH);
+
+        $allSheepInFlock = array();
+        $counter = 0;
+
+        foreach ($values as $sheep){
+            $newSheep = new Sheep (
+                $sheep[0], // sheepID
+                $sheep[1], // sheepMobile
+                $sheep[2], // sheepName
+                $sheep[3], // sheepLongtitude
+                $sheep[4], // sheepLatitude
+                $sheep[5], // accepted
+                $sheep[6], // tracking
+                $sheep[7], // isShepherd
+                $sheep[8] // flockID
+            );
+            $allSheepInFlock[$counter++] = $newSheep;
+        }
+        return $allSheepInFlock;
+    }
 }
-
-function getSheepLongitude($sheepID) {
-    
-    $query = mysql_query("SELECT sheepLongitude FROM sheep 
-    WHERE sheepID == $sheepID);");
-    
-    return $query;
-}
-
-function getSheepLatitude($sheepID) {
-    
-    $query = mysql_query("SELECT sheepLatitude FROM sheep 
-    WHERE sheepID == $sheepID);");    
-    
-    return $query;
-}
-
-function getSheepName($sheepID) {
-    
-    $query = mysql_query("SELECT sheepName FROM sheep 
-    WHERE sheepID == $sheepID);");    
-    
-    return $query;
-}
-
-function getSheepMobile($sheepID) {
-    
-    $query = mysql_query("SELECT sheepMobile FROM sheep 
-    WHERE sheepID == $sheepID);");    
-    
-    return $query;
-}
-
-
-	
-	
