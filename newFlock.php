@@ -11,31 +11,42 @@ require_once 'autoload.php';
 if (isset($_POST)){
     
     $flockTable = new FlockTable();
+    $sheepTable = new SheepTable();
     
     $flockID = $flockTable->getNextFlockID(); // TALK TO DB AND GET AUTOINCREMENT FOR FLOCK ID
-//    $flockID = 0;
-    $shepherdID = $flockID . $_POST['mobile'];
-    
-    $shepherd = new Sheep ( $shepherdID, $_POST['mobile'], $flockID, $_POST['sheepName'],
+
+    $sheepMobile = '44' . substr($_POST['mobile'], 1);
+    $shepherdID = $flockID . $sheepMobile;
+
+    $shepherd = new Sheep ( $shepherdID, $sheepMobile, $_POST['sheepName'],
             NULL, // Longtitude
             NULL, // Latitude
             true, // Accepted by default
             true, // Tracking by Default
-            true); // Is Shepherd
+            true, // Is Shepherd
+            $flockID); // FlockID
 
 
-    $flock = new Flock( $flockID, 
-                        $_POST['flockName'], 
-                        $shepherd->getSheepID(),
-                        $_POST['start'],
-                        $_POST['end'], 
-                        $_POST['maxDistance']);
-    
-    if ($flockTable->addFlock($flock)){
-        http_response_code(200);
+    if ($sheepTable->addSheep($shepherd)){
+
+        $flock = new Flock( $flockID,
+            $_POST['flockName'],
+            $shepherdID,
+            $_POST['start'],
+            $_POST['end'],
+            $_POST['maxDistance']);
+
+        if ($flockTable->addFlock($flock)){
+            http_response_code(200);
+        }
+        else{
+            http_response_code(400);
+        }
     }
     else{
-        http_response_code(400);        
+        http_response_code(400);
     }
-    
+
+    var_dump(http_response_code());
+
 }

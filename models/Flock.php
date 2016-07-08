@@ -55,6 +55,11 @@ class Flock {
         return $this->flockRadius;
     }
 
+    public function getShepherd() {
+        $sheepTable = new SheepTable();
+        return $sheepTable->getSheepUsingSheepID($this->flockShepherdID);
+    }
+
     public function setFlockID($flockID) {
         $this->flockID = $flockID;
     }
@@ -63,8 +68,8 @@ class Flock {
         $this->flockName = $flockName;
     }
 
-    public function setFlockShepherdID($flockSheperd) {
-        $this->flockShepherdID = $flockSheperd;
+    public function setFlockShepherdID($flockShepherdID) {
+        $this->flockShepherdID = $flockShepherdID;
     }
 
     public function setFlockStart($flockStart) {

@@ -13,7 +13,6 @@ require_once 'autoload.php';
 class Sheep {
 
     protected $sheepID; // Composite - flockID + mobile    
-    protected $flockID; // Foreign Key
     protected $sheepMobile; //44 7XXXXXXXX
     protected $sheepName; // String
     protected $sheepLongtitude; // Double
@@ -21,21 +20,22 @@ class Sheep {
     protected $accepted; // Bool
     protected $tracking; // Bool
     protected $isShepherd; // Bool
+    protected $flockID; // Foreign Key
 
     
     // Constructor - when used initially passes null values. For use by Tracker.
-    function __construct($sheepID, $sheepMobile, $flockID, $sheepName, 
-            $sheepLongtitude,$sheepLatitude, $accepted, $tracking, $isShepherd) 
+    function __construct($sheepID, $sheepMobile, $sheepName,
+            $sheepLongtitude, $sheepLatitude, $accepted, $tracking, $isShepherd, $flockID)
     {     
         $this->sheepID = $sheepID;
         $this->sheepMobile = $sheepMobile;
-        $this->flockID = $flockID;        
         $this->sheepName = $sheepName;
         $this->sheepLongtitude = $sheepLongtitude;
         $this->sheepLatitude = $sheepLatitude;
         $this->accepted = $accepted;
         $this->tracking = $tracking;
         $this->isShepherd = $isShepherd;
+        $this->flockID = $flockID;
     }
 
     

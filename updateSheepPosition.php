@@ -17,63 +17,82 @@ if (isset($_POST)){
     
     $flockTable = new FlockTable();
     $sheepTable = new SheepTable();
-    
-    
+    $geoDistance = new GeoDataSource();
+
+    $sheepMobile = '44' . substr($_POST['mobile'], 1);
     
     // Locate flock and sheep.    
-    $sheep = $sheepTable->getSheepUsingSheepMobile($_POST['mobile']);
+    $sheep = $sheepTable->getSheepUsingSheepMobile($sheepMobile);
     $flock = $flockTable->getFlockUsingFlockID($sheep->getFlockID());    
 
-    $oldX = $sheep->getSheepLongtitude();        
-    $oldY= $sheep->getSheepLatitude();
-    
     $newX = $_POST['longtitude'];
     $newY = $_POST['latitude'];
     
-    $sheepTable->updateSheepCoordinates($sheepID,$newX,$newY);
-    
-    $shepherdX = $flock->getShepherd()->getSheepLongtitude();    
-    $shepherdY = $flock->getShepherd()->getSheepLatitude();
+    $sheepTable->updateSheepCoordinates($sheep->getSheepID(),$newX,$newY);
+
+    $shepherd = $flock->getShepherd();
+    $shepherdX = $shepherd->getSheepLongtitude();
+    $shepherdY = $shepherd->getSheepLatitude();
             
     $flockMaxRadius = $flock->getFlockRadius();
-    $distanceFromShepherd = sqrt( 
-            pow($shepherdX - $newX,2) + pow($shepherdY - $newY,2) ); 
-    
+    $distanceFromShepherd = $geoDistance->distance($newY, $newX, $shepherdY, $shepherdX, "M");
+
     if ($distanceFromShepherd > $flockMaxRadius){
         
         // SEND MESSAGE.
-
-        //
-        // TRIM  MESSAGES TO 160 characters.
-        //
-        
-        
+        // TODO limit to 160 characters
         $lostSheepNumber = $sheep->getSheepMobile();
         $lostSheepMessage = "Oh little sheep, you have gone astray! Your Shepherd is currently " 
-                . $distanceFromShepherd . "m away! You can catch up with him if you open this link "
-                . "www.google.com/maps/place/". $shepherdX . "," . $shepherdY
-                . ". Or why not give them a ring on " 
-                . $shepherd->getSheepMobile() 
-                . " so you can explain what a silly Sheep you are. Or reply to this number and write \"STOP\".";
+                . (int)$distanceFromShepherd . "m away! You can catch up with them if you open this link "
+                . "www.google.com/maps/place/". $shepherdY . "," . $shepherdX
+                . ". Or why not give them a ring on +" . $shepherd->getSheepMobile()
+                . " so you can explain what a silly Sheep you are. To suspend tracking, text 'SUSPEND' to 84433 (Texts cost 10p)."
+                . " Confused? Find out more at www.flockbuddy.com";
 
-        // Call message $lostSheepNumber / $message. 
         try {
-            $sendSheepMessage = new Message($lostSheepNumber, $lostSheepMessage);            
+            // Create a Clockwork object using your API key
+            $clockwork = new Clockwork('787b4673e0ac4b043aab8a4764f0205ab06dc309');
+
+            // Setup and send a message
+            $message = array('to' => $lostSheepNumber, 'message' => $lostSheepMessage);
+            $result = $clockwork->send($message);
+
+            // Check if the send was successful
+            if ($result['success']) {
+                echo 'Message sent - ID: ' . $result['id'] . ' ';
+            } else {
+                echo 'Message failed - Error: ' . $result['error_message'] . ' ';
+            }
+
         } catch (ClockworkException $e) {
-                echo 'Exception sending SMS: ' . $e->getMessage();
+            echo 'Exception sending SMS: ' . $e->getMessage() . ' ';
         }
         
         $shepherdNumber = $shepherd->getSheepMobile();
+        // TODO limit to 160 characters
         $shepherdMessage = "You have lost one of your sheep! " . $sheep->getSheepName() . " is currently " 
                 . $distanceFromShepherd . "m away! He is currently here: "
-                . "www.google.com/maps/place/". $newX . "," . $newY
+                . "www.google.com/maps/place/". $newY . "," . $newX
                 . ". You could give them a ring on " 
                 . $sheep->getSheepMobile() 
-                . " so you can explain what a silly Sheep they are. To stop tracking you flock, reply to this number and write \"STOP\".";        
+                . " so you can explain what a silly Sheep they are. To stop tracking your flock, reply to this number and write \"FLOCKMENOT\".";
         try {
-            $sendShepherdMessage = new Message($shepherdNumber, $shepherdMessage);            
+            // Create a Clockwork object using your API key
+            $clockwork2 = new Clockwork('787b4673e0ac4b043aab8a4764f0205ab06dc309');
+
+            // Setup and send a message
+            $message2 = array('to' => $shepherdNumber, 'message' => $shepherdMessage);
+            $result2 = $clockwork2->send($message2);
+
+            // Check if the send was successful
+            if ($result2['success']) {
+                echo 'Message sent - ID: ' . $result2['id'] . ' ';
+            } else {
+                echo 'Message failed - Error: ' . $result2['error_message'] . ' ';
+            }
+
         } catch (ClockworkException $e) {
-                echo 'Exception sending SMS: ' . $e->getMessage();
+            echo 'Exception sending SMS: ' . $e->getMessage() . ' ';
         }
 
     }
