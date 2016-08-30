@@ -25,10 +25,11 @@ if (isset($_POST)){
     $messageFromSheep = strtoupper($_POST['keyword']);
     $messageForSheep = "Sorry, something seems to have gone wrong. Please try again or contact support@flockbuddy.com";
 
-    switch ($messageFromSheep){
+    switch ($messageFromSheep){ // Can come from SMS or Android HTTP call.
 
         case "FLOCKME":
 
+            // Has sheep already accepted, and is returning?
             if ($sheepTable->checkSheepAcceptance($sheepID)){
                 if ($sheepTable->toggleSheepTracking($sheep->getSheepID(), 1)) {
                     // TODO limit to 160 characters
@@ -37,6 +38,7 @@ if (isset($_POST)){
                         . "Confused? Find out more at www.flockbuddy.com";
                 }
             }
+            // The sheep is accepting for the first time.
             elseif ($sheepTable->confirmSheepAcceptance($sheep->getSheepID())){
 
                 // TODO Set App play package name address.
@@ -105,6 +107,7 @@ if (isset($_POST)){
 
         case "SUSPEND":
             // TODO Decide if this is sent via SMS or in app?
+            // TODO Message to App could be in XML form, as a notification to App.
             // TODO Send reminder SMS after an hour? Start cron job ?
             // Set tracking to false for this sheep.
             if ($sheepTable->toggleSheepTracking($sheep->getSheepID(), 0)) {
